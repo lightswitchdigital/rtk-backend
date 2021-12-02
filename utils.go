@@ -1,18 +1,31 @@
 package main
 
-import "github.com/golang-jwt/jwt"
+import (
+	"github.com/golang-jwt/jwt"
+	"time"
+)
 
-func generateJwtToken(access_token string, secret []byte) (string, error) {
+func generateJwtToken(data map[string]interface{}) (string, string, error) {
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"token": []byte(access_token),
-	})
+	claims := jwt.MapClaims{}
 
-	// Sign and get the complete encoded token as a string using the secret
-	tokenString, err := token.SignedString(secret)
+	for key, value := range data {
+		claims[key] = value
+	}
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	tokenString, err := token.SignedString(JWT_SECRET_TOKEN)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 
-	return tokenString, err
+	refToken := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"sub": 1,
+		"exp": time.Now().Add(time.Hour * 24).Unix(),
+	})
+	refTokenString, err := refToken.SignedString(JWT_SECRET_TOKEN)
+	if err != nil {
+		return "", "", err
+	}
+
+	return tokenString, refTokenString, err
 }

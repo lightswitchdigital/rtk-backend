@@ -57,17 +57,11 @@ var rootCmd = &cobra.Command{
 			}
 		}
 
-		token, err := generateJwtToken("some token", []byte("secret"))
-		if err != nil {
-			logrus.Errorf("%v", err)
-		}
-		logrus.Infof("token is: %v", token)
-
 		h := &Handler{}
 
 		r := gin.Default()
 		setupRouter(r, h)
-		err = r.Run()
+		err := r.Run()
 		if err != nil {
 			logrus.Errorf("error running gin: %v", err)
 		}

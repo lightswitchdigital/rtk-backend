@@ -9,7 +9,10 @@ type Handler struct {
 }
 
 func (h *Handler) HandleAuth(c *gin.Context) {
-	token, err := generateJwtToken("secret_gos_token", JWT_SECRET_TOKEN)
+	token, refToken, err := generateJwtToken(map[string]interface{}{
+		"name": "admin",
+		"foo":  "bar",
+	})
 	if err != nil {
 		logrus.Errorf("error generating jwt token: %v", err)
 		c.AbortWithStatus(503)
@@ -17,6 +20,7 @@ func (h *Handler) HandleAuth(c *gin.Context) {
 	}
 
 	c.JSON(200, map[string]interface{}{
-		"token": token,
+		"access_token":  token,
+		"refresh_token": refToken,
 	})
 }
