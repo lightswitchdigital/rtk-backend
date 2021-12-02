@@ -57,24 +57,30 @@ var rootCmd = &cobra.Command{
 			}
 		}
 
-		v := viper.GetViper()
+		token, err := generateJwtToken("some token", []byte("secret"))
+		if err != nil {
+			logrus.Errorf("%v", err)
+		}
+		logrus.Infof("token is: %v", token)
 
-		host := v.GetString("host")
-		port := v.GetString("port")
-		javaHost := v.GetString("javaHost")
-		javaPort := v.GetString("java_port")
-
-		logrus.Infof("%v:%v %v:%v", host, port, javaHost, javaPort)
+		h := &Handler{}
 
 		r := gin.Default()
-		r.GET("/ping", func(c *gin.Context) {
-			c.JSON(200, gin.H{
-				"message": "pong",
-			})
-		})
-
-		r.Run()
+		setupRouter(r, h)
+		err = r.Run()
+		if err != nil {
+			logrus.Errorf("error running gin: %v", err)
+		}
 	},
+}
+
+func setupRouter(r *gin.Engine, h *Handler) {
+	r.GET("/ping", func(c *gin.Context) {
+		c.JSON(200, gin.H{
+			"message": "pong",
+		})
+	})
+	r.GET("login", h.HandleAuth)
 }
 
 func main() {
