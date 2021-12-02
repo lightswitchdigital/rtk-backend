@@ -3,9 +3,25 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
+	"net/http"
 )
 
 type Handler struct {
+}
+
+func authMiddleware(c *gin.Context) {
+
+	token := c.GetHeader("Bearer")
+	if token == "" {
+		c.AbortWithStatus(http.StatusUnauthorized)
+		return
+	}
+
+	_, err := parseToken(token)
+	if err != nil {
+		c.AbortWithStatus(http.StatusUnauthorized)
+		return
+	}
 }
 
 func (h *Handler) HandleAuth(c *gin.Context) {

@@ -69,6 +69,7 @@ var rootCmd = &cobra.Command{
 }
 
 func setupRouter(r *gin.Engine, h *Handler) {
+	r.Use(authMiddleware)
 	r.GET("/ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"message": "pong",
