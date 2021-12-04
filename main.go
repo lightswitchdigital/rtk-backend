@@ -5,6 +5,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"net"
 	"os"
 	"runtime"
 )
@@ -61,7 +62,13 @@ var rootCmd = &cobra.Command{
 
 		r := gin.Default()
 		setupRouter(r, h)
-		err := r.Run()
+
+		v := viper.GetViper()
+		host := v.GetString("host")
+		port := v.GetString("port")
+
+		addr := net.JoinHostPort(host, port)
+		err := r.Run(addr)
 		if err != nil {
 			logrus.Errorf("error running gin: %v", err)
 		}
