@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
+	"io/ioutil"
 	"net/http"
 )
 
@@ -39,4 +40,29 @@ func (h *Handler) HandleAuth(c *gin.Context) {
 		"access_token":  token,
 		"refresh_token": refToken,
 	})
+}
+
+func (h *Handler) HandleGetUserRecords(c *gin.Context) {
+	name := c.Param("name")
+	lastName := c.Param("last_name")
+
+	if name != "" {
+
+		resp, err := http.Get("http://rtk-api.lightswitch.digital/gateway/get-records?name=" + name + "&last_name=" + lastName)
+		if err != nil {
+			c.AbortWithStatus(http.StatusServiceUnavailable)
+			return
+		}
+
+		body, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			c.AbortWithStatus(http.StatusServiceUnavailable)
+			return
+		}
+
+		c.Data(200, "application/json", body)
+
+	}
+
+	c.AbortWithStatus(http.StatusNotFound)
 }
